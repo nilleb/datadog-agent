@@ -88,6 +88,20 @@ Package runner implements a component to generate the 'resources' metadata paylo
 
 Package runner implements a component to generate metadata payload at the right interval.
 
+## [comp/otelcol](https://pkg.go.dev/github.com/DataDog/dd-agent-comp-experiments/comp/otelcol) (Component Bundle)
+
+*Datadog Team*: opentelemetry
+
+Package otelcol contains the OpenTelemetry Collector bundle pipeline to be included
+into the agent components.
+
+### [comp/otelcol/collector](https://pkg.go.dev/github.com/DataDog/dd-agent-comp-experiments/comp/otelcol/collector)
+
+Unless explicitly stated otherwise all files in this repository are licensed
+under the Apache License Version 2.0.
+This product includes software developed at Datadog (https://www.datadoghq.com/).
+Copyright 2016-present Datadog, Inc.
+
 ## [comp/process](https://pkg.go.dev/github.com/DataDog/dd-agent-comp-experiments/comp/process) (Component Bundle)
 
 *Datadog Team*: processes

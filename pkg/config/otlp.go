@@ -22,7 +22,11 @@ const (
 	OTLPTagCardinalityKey     = OTLPMetrics + ".tag_cardinality"
 	OTLPDebugKey              = "debug"
 	OTLPDebug                 = OTLPSection + "." + OTLPDebugKey
+	OTLPHealthEndpoint        = OTLPSection + ".health_check.endpoint"
 )
+
+// DefaultOTELHealthEndpoint specifies the default health check endpoint for the Collector.
+const DefaultOTELHealthEndpoint = "localhost:13133"
 
 // SetupOTLP related configuration.
 func SetupOTLP(config Config) {
@@ -102,4 +106,5 @@ func setupOTLPEnvironmentVariables(config Config) {
 	// Debug settings
 	config.BindEnv(OTLPSection + ".debug.loglevel") // Deprecated
 	config.BindEnv(OTLPSection + ".debug.verbosity")
+	config.BindEnvAndSetDefault(OTLPHealthEndpoint, DefaultOTELHealthEndpoint)
 }

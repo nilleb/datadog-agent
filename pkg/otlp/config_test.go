@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/DataDog/datadog-agent/pkg/config"
 	"github.com/DataDog/datadog-agent/pkg/otlp/internal/testutil"
 )
 
@@ -56,6 +57,7 @@ func TestFromAgentConfigReceiver(t *testing.T) {
 				OTLPReceiverConfig:       map[string]interface{}{},
 				OpenCensusReceiverConfig: map[string]interface{}{},
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				MetricsEnabled:           true,
 				TracesEnabled:            true,
 				LogsEnabled:              true,
@@ -77,6 +79,7 @@ func TestFromAgentConfigReceiver(t *testing.T) {
 				},
 				OpenCensusReceiverConfig: map[string]interface{}{},
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13132",
 				MetricsEnabled:           true,
 				TracesEnabled:            true,
 				LogsEnabled:              true,
@@ -98,6 +101,7 @@ func TestFromAgentConfigReceiver(t *testing.T) {
 				},
 				OpenCensusReceiverConfig: map[string]interface{}{},
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				MetricsEnabled:           true,
 				TracesEnabled:            true,
 				LogsEnabled:              true,
@@ -136,6 +140,7 @@ func TestFromAgentConfigReceiver(t *testing.T) {
 				OpenCensusEnabled:        true,
 				OpenCensusReceiverConfig: map[string]interface{}{"endpoint": "0.0.0.0:55678"},
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				MetricsEnabled:           true,
 				TracesEnabled:            true,
 				LogsEnabled:              true,
@@ -152,6 +157,7 @@ func TestFromAgentConfigReceiver(t *testing.T) {
 				OTLPReceiverConfig:       map[string]interface{}{},
 				OpenCensusReceiverConfig: map[string]interface{}{},
 				TracePort:                5003,
+				HealthEndpoint:           config.DefaultOTELHealthEndpoint,
 				MetricsEnabled:           true,
 				TracesEnabled:            true,
 				LogsEnabled:              true,
@@ -168,6 +174,7 @@ func TestFromAgentConfigReceiver(t *testing.T) {
 				OTLPReceiverConfig:       map[string]interface{}{},
 				OpenCensusReceiverConfig: map[string]interface{}{},
 				TracePort:                5003,
+				HealthEndpoint:           config.DefaultOTELHealthEndpoint,
 				MetricsEnabled:           true,
 				TracesEnabled:            true,
 				LogsEnabled:              false,
@@ -219,6 +226,7 @@ func TestFromEnvironmentVariables(t *testing.T) {
 				TracesEnabled:            true,
 				LogsEnabled:              true,
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				Metrics: map[string]interface{}{
 					"enabled":         true,
 					"tag_cardinality": "low",
@@ -248,6 +256,7 @@ func TestFromEnvironmentVariables(t *testing.T) {
 				TracesEnabled:            true,
 				LogsEnabled:              true,
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				Metrics: map[string]interface{}{
 					"enabled":         true,
 					"tag_cardinality": "low",
@@ -280,6 +289,7 @@ func TestFromEnvironmentVariables(t *testing.T) {
 				TracesEnabled:            true,
 				LogsEnabled:              true,
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				Metrics: map[string]interface{}{
 					"enabled":                                true,
 					"instrumentation_scope_metadata_as_tags": "true",
@@ -297,6 +307,7 @@ func TestFromEnvironmentVariables(t *testing.T) {
 			env: map[string]string{
 				"DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT": "0.0.0.0:9999",
 				"DD_OTLP_CONFIG_DEBUG_LOGLEVEL":                   "disabled",
+				"DD_OTLP_CONFIG_HEALTH_CHECK_ENDPOINT":            "localhost:133",
 			},
 			cfg: PipelineConfig{
 				OTLPReceiverConfig: map[string]interface{}{
@@ -311,6 +322,7 @@ func TestFromEnvironmentVariables(t *testing.T) {
 				TracesEnabled:            true,
 				LogsEnabled:              true,
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:133",
 				Metrics: map[string]interface{}{
 					"enabled":         true,
 					"tag_cardinality": "low",
@@ -339,6 +351,7 @@ func TestFromEnvironmentVariables(t *testing.T) {
 				TracesEnabled:            true,
 				LogsEnabled:              true,
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				Metrics: map[string]interface{}{
 					"enabled":         true,
 					"tag_cardinality": "low",
@@ -368,6 +381,7 @@ func TestFromEnvironmentVariables(t *testing.T) {
 				TracesEnabled:            true,
 				LogsEnabled:              true,
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				Metrics: map[string]interface{}{
 					"enabled":         true,
 					"tag_cardinality": "low",
@@ -395,6 +409,7 @@ func TestFromEnvironmentVariables(t *testing.T) {
 				TracesEnabled:            true,
 				LogsEnabled:              true,
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				Metrics: map[string]interface{}{
 					"enabled":         true,
 					"tag_cardinality": "low",
@@ -414,6 +429,7 @@ func TestFromEnvironmentVariables(t *testing.T) {
 				TracesEnabled:            true,
 				LogsEnabled:              true,
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				Metrics: map[string]interface{}{
 					"enabled":         true,
 					"tag_cardinality": "low",
@@ -433,6 +449,7 @@ func TestFromEnvironmentVariables(t *testing.T) {
 				TracesEnabled:            true,
 				LogsEnabled:              false,
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				Metrics: map[string]interface{}{
 					"enabled":         true,
 					"tag_cardinality": "low",
@@ -470,6 +487,7 @@ func TestFromAgentConfigMetrics(t *testing.T) {
 				OTLPReceiverConfig:       testutil.OTLPConfigFromPorts("localhost", 5678, 1234),
 				OpenCensusReceiverConfig: map[string]interface{}{},
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13134",
 				MetricsEnabled:           true,
 				TracesEnabled:            true,
 				LogsEnabled:              true,
@@ -521,6 +539,7 @@ func TestFromAgentConfigDebug(t *testing.T) {
 				OTLPReceiverConfig:       map[string]interface{}{},
 				OpenCensusReceiverConfig: map[string]interface{}{},
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				MetricsEnabled:           true,
 				TracesEnabled:            true,
 				LogsEnabled:              true,
@@ -535,6 +554,7 @@ func TestFromAgentConfigDebug(t *testing.T) {
 				OTLPReceiverConfig:       map[string]interface{}{},
 				OpenCensusReceiverConfig: map[string]interface{}{},
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				MetricsEnabled:           true,
 				TracesEnabled:            true,
 				LogsEnabled:              true,
@@ -549,6 +569,7 @@ func TestFromAgentConfigDebug(t *testing.T) {
 				OTLPReceiverConfig:       map[string]interface{}{},
 				OpenCensusReceiverConfig: map[string]interface{}{},
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				MetricsEnabled:           true,
 				TracesEnabled:            true,
 				LogsEnabled:              true,
@@ -563,6 +584,7 @@ func TestFromAgentConfigDebug(t *testing.T) {
 				OTLPReceiverConfig:       map[string]interface{}{},
 				OpenCensusReceiverConfig: map[string]interface{}{},
 				TracePort:                5003,
+				HealthEndpoint:           "localhost:13133",
 				MetricsEnabled:           true,
 				TracesEnabled:            true,
 				LogsEnabled:              true,

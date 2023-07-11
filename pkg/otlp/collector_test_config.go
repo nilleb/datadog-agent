@@ -7,12 +7,16 @@
 
 package otlp
 
-import "github.com/DataDog/datadog-agent/pkg/otlp/internal/testutil"
+import (
+	coreconfig "github.com/DataDog/datadog-agent/pkg/config"
+	"github.com/DataDog/datadog-agent/pkg/otlp/internal/testutil"
+)
 
 func getTestPipelineConfig() PipelineConfig {
 	return PipelineConfig{
 		OTLPReceiverConfig: testutil.OTLPConfigFromPorts("localhost", 4317, 4318),
 		TracePort:          5003,
+		HealthEndpoint:     coreconfig.DefaultOTELHealthEndpoint,
 		MetricsEnabled:     true,
 		TracesEnabled:      true,
 		LogsEnabled:        true,

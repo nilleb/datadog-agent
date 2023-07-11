@@ -29,7 +29,8 @@ func buildTracesMap(cfg PipelineConfig) (*confmap.Conf, error) {
 		return nil, err
 	}
 	smap := map[string]interface{}{
-		buildKey("exporters", "otlp", "endpoint"): fmt.Sprintf("%s:%d", "localhost", cfg.TracePort),
+		buildKey("exporters", "otlp", "endpoint"):          fmt.Sprintf("%s:%d", "localhost", cfg.TracePort),
+		buildKey("extensions", "health_check", "endpoint"): cfg.HealthEndpoint,
 	}
 	if cfg.OpenCensusEnabled {
 		smap[buildKey("service", "pipelines", "traces", "receivers")] = []interface{}{"otlp", "opencensus"}
@@ -47,7 +48,8 @@ func buildMetricsMap(cfg PipelineConfig) (*confmap.Conf, error) {
 		return nil, err
 	}
 	smap := map[string]interface{}{
-		buildKey("exporters", "serializer", "metrics"): cfg.Metrics,
+		buildKey("exporters", "serializer", "metrics"):     cfg.Metrics,
+		buildKey("extensions", "health_check", "endpoint"): cfg.HealthEndpoint,
 	}
 	if cfg.OpenCensusEnabled {
 		smap[buildKey("service", "pipelines", "metrics", "receivers")] = []interface{}{"otlp", "opencensus"}
@@ -58,11 +60,16 @@ func buildMetricsMap(cfg PipelineConfig) (*confmap.Conf, error) {
 	}
 	return baseMap, err
 }
-func buildLogsMap() (*confmap.Conf, error) {
+
+func buildLogsMap(cfg PipelineConfig) (*confmap.Conf, error) {
 	baseMap, err := configutils.NewMapFromYAMLString(defaultLogsConfig)
 	if err != nil {
 		return nil, err
 	}
+	smap := map[string]interface{}{
+		buildKey("extensions", "health_check", "endpoint"): cfg.HealthEndpoint,
+	}
+	err = baseMap.Merge(confmap.NewFromStringMap(smap))
 	return baseMap, err
 }
 
@@ -94,7 +101,7 @@ func buildMap(cfg PipelineConfig) (*confmap.Conf, error) {
 		errs = append(errs, err)
 	}
 	if cfg.LogsEnabled {
-		logsMap, err := buildLogsMap()
+		logsMap, err := buildLogsMap(cfg)
 		errs = append(errs, err)
 
 		err = retMap.Merge(logsMap)
