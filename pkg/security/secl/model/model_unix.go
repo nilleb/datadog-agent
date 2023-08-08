@@ -364,6 +364,8 @@ type FileFields struct {
 	MTime uint64 `field:"modification_time"`                                           // SECLDoc[modification_time] Definition:`Modification time of the file`
 
 	PathKey
+	Device uint32 `field:"-"`
+
 	InUpperLayer bool `field:"in_upper_layer,handler:ResolveFileFieldsInUpperLayer"` // SECLDoc[in_upper_layer] Definition:`Indicator of the file layer, for example, in an OverlayFS`
 
 	NLink uint32 `field:"-" json:"-"`
