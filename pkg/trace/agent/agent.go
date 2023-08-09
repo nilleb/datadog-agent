@@ -280,6 +280,7 @@ func (a *Agent) Process(p *api.Payload) {
 		// Extra sanitization steps of the trace.
 		appServicesTags := traceutil.GetAppServicesTags()
 		for _, span := range chunk.Spans {
+			log.Debugf("[keisukelog] span: %#v", span)
 			for k, v := range a.conf.GlobalTags {
 				if k == tagOrigin {
 					chunk.Origin = v
@@ -299,6 +300,7 @@ func (a *Agent) Process(p *api.Payload) {
 			if p.ClientComputedTopLevel {
 				traceutil.UpdateTracerTopLevel(span)
 			}
+			log.Debugf("[keisukelog] span after some operations: %#v", span)
 		}
 		a.Replacer.Replace(chunk.Spans)
 
