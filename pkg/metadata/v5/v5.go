@@ -10,9 +10,9 @@ package v5
 import (
 	"context"
 
+	hostMetadataUtils "github.com/DataDog/datadog-agent/comp/metadata/host/utils"
 	"github.com/DataDog/datadog-agent/pkg/config"
 	"github.com/DataDog/datadog-agent/pkg/metadata/common"
-	"github.com/DataDog/datadog-agent/pkg/metadata/host"
 	"github.com/DataDog/datadog-agent/pkg/metadata/internal/gohai"
 	"github.com/DataDog/datadog-agent/pkg/metadata/internal/resources"
 	"github.com/DataDog/datadog-agent/pkg/util/hostname"
@@ -21,7 +21,7 @@ import (
 // GetPayload returns the complete metadata payload as seen in Agent v5
 func GetPayload(ctx context.Context, hostnameData hostname.Data) *Payload {
 	cp := common.GetPayload(hostnameData.Hostname)
-	hp := host.GetPayload(ctx, hostnameData)
+	hp := hostMetadataUtils.GetPayload(ctx, config.Datadog)
 	rp := resources.GetPayload(hostnameData.Hostname)
 
 	p := &Payload{

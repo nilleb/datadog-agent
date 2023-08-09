@@ -8,15 +8,15 @@
 package v5
 
 import (
+	hostMetadataUtils "github.com/DataDog/datadog-agent/comp/metadata/host/utils"
 	"github.com/DataDog/datadog-agent/pkg/metadata/common"
-	"github.com/DataDog/datadog-agent/pkg/metadata/host"
 )
 
 // GetPayload returns the complete metadata payload as seen in Agent v5.
 // Note: gohai can't be used on the platforms this module builds for
 func GetPayload(hostname string) *Payload {
 	cp := common.GetPayload(hostname)
-	hp := host.GetPayload(hostname)
+	hp := hostMetadataUtils.GetPayload(context.Background(), config.Datadog)
 
 	return &Payload{
 		CommonPayload: CommonPayload{*cp},

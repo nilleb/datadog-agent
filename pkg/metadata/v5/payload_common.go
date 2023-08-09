@@ -8,8 +8,8 @@ package v5
 import (
 	"encoding/json"
 
+	hostMetadataUtils "github.com/DataDog/datadog-agent/comp/metadata/host/utils"
 	"github.com/DataDog/datadog-agent/pkg/metadata/common"
-	"github.com/DataDog/datadog-agent/pkg/metadata/host"
 	"github.com/DataDog/datadog-agent/pkg/metadata/internal/resources"
 )
 
@@ -20,7 +20,7 @@ type CommonPayload struct {
 
 // HostPayload wraps Payload from the host package
 type HostPayload struct {
-	host.Payload
+	hostMetadataUtils.Payload
 }
 
 // ResourcesPayload wraps Payload from the resources package
