@@ -70,7 +70,7 @@ func newPipeline(deps dependencies) (Component, error) {
 			ctx := context.Background()
 			go func() {
 				if err := col.Run(ctx); err != nil {
-					deps.Log.Errorf("Error starting the OTLP pipeline: %v", err)
+					deps.Log.Errorf("Error starting the OTLP ingest pipeline: %v", err)
 				}
 			}()
 			return nil
