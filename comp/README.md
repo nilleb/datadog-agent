@@ -92,7 +92,7 @@ Package runner implements a component to generate metadata payload at the right 
 
 *Datadog Team*: opentelemetry
 
-Package otelcol contains the OpenTelemetry Collector bundle pipeline to be included
+Package otelcol contains the OTLP ingest bundle pipeline to be included
 into the agent components.
 
 ### [comp/otelcol/collector](https://pkg.go.dev/github.com/DataDog/dd-agent-comp-experiments/comp/otelcol/collector)
