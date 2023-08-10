@@ -62,7 +62,7 @@ func newPipeline(deps dependencies) (Component, error) {
 			col, err = otlp.NewPipelineFromAgentConfig(deps.Config, deps.Serializer, logch)
 			if err != nil {
 				// failure to start the OTLP component shouldn't fail startup
-				deps.Log.Errorf("Error creating the OTLP pipeline: %v", err)
+				deps.Log.Errorf("Error creating the OTLP ingest pipeline: %v", err)
 				return nil
 			}
 			// the context passed to this function has a startup deadline which
