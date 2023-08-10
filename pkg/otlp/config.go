@@ -86,10 +86,7 @@ func FromAgentConfig(cfg config.Component) (PipelineConfig, error) {
 	metricsConfig := readConfigSection(cfg, coreconfig.OTLPMetrics)
 	debugConfig := readConfigSection(cfg, coreconfig.OTLPDebug)
 
-	health := coreconfig.DefaultOTELHealthEndpoint
-	if v := cfg.GetString(coreconfig.OTLPHealthEndpoint); v != "" {
-		health = v
-	}
+	health := cfg.GetString(coreconfig.OTLPHealthEndpoint)
 	return PipelineConfig{
 		OTLPReceiverConfig:       otlpConfig.ToStringMap(),
 		OpenCensusReceiverConfig: censusConfig.ToStringMap(),
