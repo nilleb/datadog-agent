@@ -62,7 +62,7 @@ type OrchestratorInstance struct {
 	ExtraSyncTimeoutSeconds int      `yaml:"extra_sync_timeout_seconds"`
 }
 
-func (c *OrchestratorInstance) parse(data []byte) error {
+func (c *OrchestratorInstance) Parse(data []byte) error {
 	return yaml.Unmarshal(data, c)
 }
 
@@ -126,7 +126,7 @@ func (o *OrchestratorCheck) Configure(integrationConfigDigest uint64, config, in
 	}
 
 	// load instance level config
-	err = o.instance.parse(config)
+	err = o.instance.Parse(config)
 	if err != nil {
 		_ = log.Error("could not parse check instance config")
 		return err
