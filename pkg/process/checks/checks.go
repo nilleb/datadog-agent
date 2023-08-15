@@ -104,7 +104,6 @@ func All(config, sysprobeYamlCfg ddconfig.ConfigReaderWriter, syscfg *sysconfig.
 		NewContainerCheck(config),
 		NewRTContainerCheck(config),
 		NewConnectionsCheck(config, sysprobeYamlCfg, syscfg),
-		NewPodCheck(),
 		NewProcessDiscoveryCheck(config),
 		NewProcessEventsCheck(config),
 	}
