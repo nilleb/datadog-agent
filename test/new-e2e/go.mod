@@ -42,6 +42,8 @@ require (
 )
 
 require (
+	github.com/DataDog/datadog-api-client-go v1.16.0 // indirect
+	github.com/DataDog/zstd v1.5.0 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20230626094100-7e9e0395ebec // indirect
