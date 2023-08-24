@@ -247,7 +247,7 @@ func reportComplianceEvents(log log.Component, config config.Component, events [
 		return fmt.Errorf("reporter: could not create: %w", err)
 	}
 	for _, event := range events {
-		reporter.ReportEvent(event)
+		reporter.ReportEvent(event, nil)
 	}
 	return nil
 }

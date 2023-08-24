@@ -24,6 +24,7 @@ import (
 	"github.com/DataDog/datadog-agent/pkg/util/jsonquery"
 	"github.com/DataDog/datadog-agent/pkg/util/log"
 	"github.com/DataDog/datadog-agent/pkg/version"
+	"github.com/DataDog/datadog-agent/pkg/workloadmeta"
 	"github.com/DataDog/datadog-go/v5/statsd"
 
 	dockertypes "github.com/docker/docker/api/types"
@@ -70,6 +71,7 @@ func DefaultLinuxAuditProvider(ctx context.Context) (LinuxAuditClient, error) {
 type ResolverOptions struct {
 	Hostname     string
 	HostRoot     string
+	ContainerID  string
 	StatsdClient *statsd.Client
 
 	DockerProvider
@@ -146,12 +148,17 @@ func (r *defaultResolver) ResolveInputs(ctx_ context.Context, rule *Rule) (Resol
 	resolvingContext := struct {
 		RuleID            string                `json:"ruleID"`
 		Hostname          string                `json:"hostname"`
-		KubernetesCluster string                `json:"kubernetes_cluster,omitempty"`
+		KubernetesCluster string                `json:"kubernetes_cluster"`
+		ContainerID       string                `json:"containerID"`
+		ImageID           string                `json:"image_id"`
+		ImageName         string                `json:"image_name"`
+		ImageTag          string                `json:"image_tag"`
 		InputSpecs        map[string]*InputSpec `json:"input"`
 	}{
-		RuleID:     rule.ID,
-		Hostname:   r.opts.Hostname,
-		InputSpecs: make(map[string]*InputSpec),
+		RuleID:      rule.ID,
+		Hostname:    r.opts.Hostname,
+		ContainerID: r.opts.ContainerID,
+		InputSpecs:  make(map[string]*InputSpec),
 	}
 
 	// We deactivate all docker rules, or kubernetes cluster rules if adequate
@@ -169,6 +176,19 @@ func (r *defaultResolver) ResolveInputs(ctx_ context.Context, rule *Rule) (Resol
 
 	ctx, cancel := context.WithTimeout(ctx_, inputsResolveTimeout)
 	defer cancel()
+
+	// If a container ID is associated with this resolver instance, we try to
+	// resolve the image metadata associated with the container to be part of
+	// the resolved inputs.
+	if containerID := r.opts.ContainerID; containerID != "" {
+		if store := workloadmeta.GetGlobalStore(); store != nil {
+			if ctnr, _ := store.GetContainer(containerID); ctnr != nil {
+				resolvingContext.ImageID = ctnr.Image.ID
+				resolvingContext.ImageName = ctnr.Image.Name
+				resolvingContext.ImageTag = ctnr.Image.Tag
+			}
+		}
+	}
 
 	resolved := make(map[string]interface{})
 	for _, spec := range rule.InputSpecs {

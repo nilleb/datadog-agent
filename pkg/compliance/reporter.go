@@ -89,14 +89,15 @@ func (r *LogReporter) Endpoints() *config.Endpoints {
 	return r.endpoints
 }
 
-func (r *LogReporter) ReportEvent(event interface{}) {
+// ReportEvent sends the given payload data as a log with associated tags.
+func (r *LogReporter) ReportEvent(event interface{}, tags []string) {
 	buf, err := json.Marshal(event)
 	if err != nil {
 		log.Errorf("failed to serialize compliance event: %v", err)
 		return
 	}
 	origin := message.NewOrigin(r.logSource)
-	origin.SetTags(r.tags)
+	origin.SetTags(append(r.tags, tags...))
 	msg := message.NewMessage(buf, origin, message.StatusInfo, time.Now().UnixNano())
 	r.logChan <- msg
 }

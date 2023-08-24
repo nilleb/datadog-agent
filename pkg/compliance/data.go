@@ -66,10 +66,12 @@ type CheckEvent struct {
 	Result       CheckResult            `json:"result,omitempty"`
 	ResourceType string                 `json:"resource_type,omitempty"`
 	ResourceID   string                 `json:"resource_id,omitempty"`
-	Tags         []string               `json:"tags"`
+	ContainerID  string                 `json:"container_id,omitempty"`
+	Image        string                 `json:"image,omitempty"`
 	Data         map[string]interface{} `json:"data"`
 
-	errReason error `json:"-"`
+	tags      []string
+	errReason error
 }
 
 type ResourceLog struct {
@@ -78,7 +80,14 @@ type ResourceLog struct {
 	ResourceType string      `json:"resource_type,omitempty"`
 	ResourceID   string      `json:"resource_id,omitempty"`
 	ResourceData interface{} `json:"resource_data,omitempty"`
-	Tags         []string    `json:"tags"`
+
+	tags []string
+}
+
+func (e *CheckEvent) addTag(key, value string) {
+	if key != "" && value != "" {
+		e.tags = append(e.tags, fmt.Sprintf("%s:%s", key, value))
+	}
 }
 
 func (e *CheckEvent) String() string {
@@ -269,13 +278,14 @@ type ResolvedInputs map[string]interface{}
 type Benchmark struct {
 	dirname string
 
-	Name        string   `yaml:"name,omitempty" json:"name,omitempty"`
-	FrameworkID string   `yaml:"framework,omitempty" json:"framework,omitempty"`
-	Version     string   `yaml:"version,omitempty" json:"version,omitempty"`
-	Tags        []string `yaml:"tags,omitempty" json:"tags,omitempty"`
-	Rules       []*Rule  `yaml:"rules,omitempty" json:"rules,omitempty"`
-	Source      string   `yaml:"-" json:"-"`
-	Schema      struct {
+	Name              string   `yaml:"name,omitempty" json:"name,omitempty"`
+	FrameworkID       string   `yaml:"framework,omitempty" json:"framework,omitempty"`
+	Version           string   `yaml:"version,omitempty" json:"version,omitempty"`
+	Tags              []string `yaml:"tags,omitempty" json:"tags,omitempty"`
+	Rules             []*Rule  `yaml:"rules,omitempty" json:"rules,omitempty"`
+	EligibleProcesses []string `yaml:"eligible_processes,omitempty" json:"eligible_processes,omitempty"`
+	Source            string   `yaml:"-" json:"-"`
+	Schema            struct {
 		Version string `yaml:"version" json:"version"`
 	} `yaml:"schema,omitempty" json:"schema,omitempty"`
 }

@@ -22,7 +22,9 @@ import (
 	"github.com/DataDog/datadog-agent/pkg/security/rules"
 	secl "github.com/DataDog/datadog-agent/pkg/security/secl/rules"
 	"github.com/DataDog/datadog-agent/pkg/security/telemetry"
+	secutils "github.com/DataDog/datadog-agent/pkg/security/utils"
 	"github.com/DataDog/datadog-agent/pkg/util/log"
+	"github.com/shirou/gopsutil/v3/process"
 )
 
 const containersCountMetricName = "datadog.security_agent.compliance.containers_running"
@@ -126,7 +128,7 @@ func NewAgent(senderManager sender.SenderManager, opts AgentOptions) *Agent {
 		opts.RunJitterMax = 0
 	}
 	if opts.EvalThrottling == 0 {
-		opts.EvalThrottling = 2 * time.Second
+		opts.EvalThrottling = 1 * time.Second
 	}
 	if ruleFilter := opts.RuleFilter; ruleFilter != nil {
 		opts.RuleFilter = func(r *Rule) bool { return DefaultRuleFilter(r) && ruleFilter(r) }
@@ -233,25 +235,75 @@ func (a *Agent) runRegoBenchmarks(ctx context.Context) {
 	log.Debugf("will be executing %d rego benchmarks every %s", len(benchmarks), a.opts.CheckInterval)
 	for {
 		for i, benchmark := range benchmarks {
+			options := getBenchmarkExecOptions(ctx, benchmark, a.opts.ResolverOptions)
+			if len(options) == 0 {
+				log.Debugf("skipping benchmark %s: no associated process found", benchmark.Name)
+				continue
+			}
+
 			seed := fmt.Sprintf("%s%s%d", a.opts.Hostname, benchmark.FrameworkID, i)
 			if sleepAborted(ctx, time.After(randomJitter(seed, a.opts.RunJitterMax))) {
 				return
 			}
-			resolver := NewResolver(ctx, a.opts.ResolverOptions)
-			for _, rule := range benchmark.Rules {
-				events := ResolveAndEvaluateRegoRule(ctx, resolver, benchmark, rule)
-				a.reportEvents(ctx, benchmark, events)
-				if sleepAborted(ctx, throttler.C) {
-					resolver.Close()
-					return
+
+			for _, opts := range options {
+				resolver := NewResolver(ctx, opts)
+				log.Debugf("running benchmark %s on root FS %q (%d rules)", benchmark.Name, opts.HostRoot, len(benchmark.Rules))
+				for _, rule := range benchmark.Rules {
+					events := ResolveAndEvaluateRegoRule(ctx, resolver, benchmark, rule)
+					a.reportEvents(ctx, benchmark, events)
+					if sleepAborted(ctx, throttler.C) {
+						resolver.Close()
+						return
+					}
 				}
+				resolver.Close()
 			}
-			resolver.Close()
 		}
 		if sleepAborted(ctx, runTicker.C) {
 			return
 		}
 	}
+}
+
+// getBenchmarkExecOptions returns the different options from which a benchmark may be interesting to launch.
+// For instance, when running a benchmark associated to a number of containers
+func getBenchmarkExecOptions(ctx context.Context, benchmark *Benchmark, base ResolverOptions) []ResolverOptions {
+	if len(benchmark.EligibleProcesses) == 0 {
+		return []ResolverOptions{base}
+	}
+
+	procs, err := process.ProcessesWithContext(ctx)
+	if err != nil {
+		return nil
+	}
+
+	containers := make(map[secutils.ContainerID]ResolverOptions)
+	for _, proc := range procs {
+		name, _ := proc.Name()
+		for _, n := range benchmark.EligibleProcesses {
+			if n == name {
+				opts := base // copy
+				// with a process matching, we try to guess what is its
+				// associated containerID. if we found none, we just deduce
+				// that it is a process running directly on the host.
+				containerID, _ := secutils.GetProcContainerID(uint32(proc.Pid), uint32(proc.Pid))
+				if containerID == "" {
+					containers["__host__"] = opts
+				} else if _, ok := containers[containerID]; !ok {
+					opts.HostRoot = secutils.ProcRootPath(uint32(proc.Pid))
+					opts.ContainerID = string(containerID)
+					containers[containerID] = opts
+				}
+			}
+		}
+	}
+
+	options := make([]ResolverOptions, 0, len(containers))
+	for _, opts := range containers {
+		options = append(options, opts)
+	}
+	return options
 }
 
 func (a *Agent) runXCCDFBenchmarks(ctx context.Context) {
@@ -313,7 +365,7 @@ func (a *Agent) runKubernetesConfigurationsExport(ctx context.Context) {
 		}
 		k8sResourceType, k8sResourceData := k8sconfig.LoadConfiguration(ctx, a.opts.HostRoot)
 		k8sResourceLog := NewResourceLog(a.opts.Hostname, k8sResourceType, k8sResourceData)
-		a.opts.Reporter.ReportEvent(k8sResourceLog)
+		a.opts.Reporter.ReportEvent(k8sResourceLog, k8sResourceLog.tags)
 		if sleepAborted(ctx, runTicker.C) {
 			return
 		}
@@ -341,7 +393,7 @@ func (a *Agent) runAptConfigurationExport(ctx context.Context) {
 		}
 		aptResourceType, aptResourceData := aptconfig.LoadConfiguration(ctx, a.opts.HostRoot)
 		aptResourceLog := NewResourceLog(a.opts.Hostname, aptResourceType, aptResourceData)
-		a.opts.Reporter.ReportEvent(aptResourceLog)
+		a.opts.Reporter.ReportEvent(aptResourceLog, aptResourceLog.tags)
 		if sleepAborted(ctx, runTicker.C) {
 			return
 		}
@@ -354,7 +406,7 @@ func (a *Agent) reportEvents(ctx context.Context, benchmark *Benchmark, events [
 		if event.Result == CheckSkipped {
 			continue
 		}
-		a.opts.Reporter.ReportEvent(event)
+		a.opts.Reporter.ReportEvent(event, event.tags)
 	}
 }
 

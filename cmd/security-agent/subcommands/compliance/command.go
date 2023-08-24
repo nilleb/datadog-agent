@@ -43,6 +43,7 @@ type cliParams struct {
 	sourceType string
 	event      compliance.CheckEvent
 	data       []string
+	tags       []string
 }
 
 func complianceEventCommand(globalParams *command.GlobalParams) *cobra.Command {
@@ -71,7 +72,7 @@ func complianceEventCommand(globalParams *command.GlobalParams) *cobra.Command {
 	eventCmd.Flags().StringVarP(&eventArgs.event.RuleID, flags.RuleID, "", "", "Rule ID")
 	eventCmd.Flags().StringVarP(&eventArgs.event.ResourceID, flags.ResourceID, "", "", "Resource ID")
 	eventCmd.Flags().StringVarP(&eventArgs.event.ResourceType, flags.ResourceType, "", "", "Resource type")
-	eventCmd.Flags().StringSliceVarP(&eventArgs.event.Tags, flags.Tags, "t", []string{"security:compliance"}, "Tags")
+	eventCmd.Flags().StringSliceVarP(&eventArgs.tags, flags.Tags, "t", []string{"security:compliance"}, "Tags")
 	eventCmd.Flags().StringSliceVarP(&eventArgs.data, flags.Data, "d", []string{}, "Data KV fields")
 
 	return eventCmd
@@ -101,6 +102,6 @@ func eventRun(log log.Component, config config.Component, eventArgs *cliParams) 
 		eventData[kv[0]] = kv[1]
 	}
 	eventArgs.event.Data = eventData
-	reporter.ReportEvent(eventData)
+	reporter.ReportEvent(eventData, eventArgs.tags)
 	return nil
 }
