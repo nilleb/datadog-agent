@@ -19,7 +19,6 @@ import (
 	"github.com/DataDog/datadog-agent/pkg/config/utils"
 	"github.com/DataDog/datadog-agent/pkg/orchestrator/redact"
 	apicfg "github.com/DataDog/datadog-agent/pkg/process/util/api/config"
-	"github.com/DataDog/datadog-agent/pkg/util/flavor"
 	"github.com/DataDog/datadog-agent/pkg/util/hostname"
 	"github.com/DataDog/datadog-agent/pkg/util/kubernetes/clustername"
 	pkglog "github.com/DataDog/datadog-agent/pkg/util/log"
@@ -164,9 +163,6 @@ func extractOrchestratorDDUrl() (*url.URL, error) {
 // if the feature is activated on the cluster-agent/cluster-check runner, nil otherwise
 func NewOrchestratorForwarder(log log.Component) forwarder.Forwarder {
 	if !config.Datadog.GetBool(key(orchestratorNS, "enabled")) {
-		return nil
-	}
-	if flavor.GetFlavor() == flavor.DefaultAgent && !config.IsCLCRunner() {
 		return nil
 	}
 	orchestratorCfg := NewDefaultOrchestratorConfig()
