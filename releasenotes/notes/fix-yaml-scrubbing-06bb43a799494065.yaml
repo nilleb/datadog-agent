@@ -1,5 +1,5 @@
 ---
 fixes:
   - |
-    The scubbing logic for configurations now scrub YAML list. This fixes ``flare_stripped_keys`` not working on YAML
+    The scubbing logic for configurations now scrubs YAML lists. This fixes ``flare_stripped_keys`` not working on YAML.
     list.
