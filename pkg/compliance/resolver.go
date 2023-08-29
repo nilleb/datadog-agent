@@ -199,6 +199,9 @@ func (r *defaultResolver) ResolveInputs(ctx_ context.Context, rule *Rule) (Resol
 			resultType = "kubernetes"
 			result, err = r.resolveKubeApiserver(ctx, *spec.KubeApiserver)
 			kubernetesCluster = r.resolveKubeClusterID(ctx)
+		case spec.Package != nil:
+			resultType = "package"
+			result, err = r.resolvePackage(ctx, *spec.Package)
 		case spec.Constants != nil:
 			resultType = "constants"
 			result = *spec.Constants
@@ -726,6 +729,57 @@ func (r *defaultResolver) resolveKubeApiserver(ctx context.Context, spec InputSp
 		})
 	}
 	return resolved, nil
+}
+
+const (
+	apkDb     = "/lib/apk/db/installed"
+	dpkgDb    = "/var/lib/dpkg/status"
+	dpkgDbDir = "/var/lib/dpkg/status.d"
+)
+
+var rpmDbs = []string{
+	"/usr/lib/sysimage/rpm/rpmdb.sqlite",
+	"/var/lib/rpm/rpmdb.sqlite",
+	"/usr/lib/sysimage/rpm/Packages.db",
+	"/var/lib/rpm/Packages.db",
+	"/usr/lib/sysimage/rpm/Packages",
+	"/var/lib/rpm/Packages",
+}
+
+func (r *defaultResolver) resolvePackage(ctx context.Context, spec InputSpecPackage) (interface{}, error) {
+	if len(spec.Names) == 0 {
+		return nil, nil
+	}
+
+	// apk
+	apkPath := r.pathNormalizeToHostRoot(apkDb)
+	if pkg := findApkPackage(apkPath, spec.Names); pkg != nil {
+		return pkg, nil
+	}
+
+	// dpkg
+	dpkgPath := r.pathNormalizeToHostRoot(dpkgDb)
+	if pkg := findDpkgPackage(dpkgPath, spec.Names); pkg != nil {
+		return pkg, nil
+	}
+	dpkgDirPath := r.pathNormalizeToHostRoot(dpkgDb)
+	if files, _ := os.ReadDir(dpkgDirPath); len(files) > 0 {
+		for _, entry := range files {
+			if pkg := findDpkgPackage(entry.Name(), spec.Names); pkg != nil {
+				return pkg, nil
+			}
+		}
+	}
+
+	// rpm
+	for _, path := range rpmDbs {
+		rpmPath := r.pathNormalizeToHostRoot(path)
+		if pkg := findRpmPackage(rpmPath, spec.Names); pkg != nil {
+			return pkg, nil
+		}
+	}
+
+	return nil, nil
 }
 
 func parseCmdlineFlags(cmdline []string) map[string]string {

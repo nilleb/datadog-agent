@@ -207,6 +207,7 @@ type (
 		Audit         *InputSpecAudit         `yaml:"audit,omitempty" json:"audit,omitempty"`
 		Docker        *InputSpecDocker        `yaml:"docker,omitempty" json:"docker,omitempty"`
 		KubeApiserver *InputSpecKubeapiserver `yaml:"kubeApiserver,omitempty" json:"kubeApiserver,omitempty"`
+		Package       *InputSpecPackage       `yaml:"package,omitempty" json:"package,omitempty"`
 		XCCDF         *InputSpecXCCDF         `yaml:"xccdf,omitempty" json:"xccdf,omitempty"`
 		Constants     *InputSpecConstants     `yaml:"constants,omitempty" json:"constants,omitempty"`
 
@@ -248,6 +249,12 @@ type (
 			Verb         string `yaml:"verb" json:"verb"`
 			ResourceName string `yaml:"resourceName,omitempty" json:"resourceName,omitempty"`
 		} `yaml:"apiRequest" json:"apiRequest"`
+	}
+
+	// InputSpecPackage defines the names of the software packages that need
+	// to be resolved
+	InputSpecPackage struct {
+		Names []string `yaml:"names" json:"names"`
 	}
 
 	InputSpecXCCDF struct {
