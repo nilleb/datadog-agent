@@ -3,6 +3,7 @@
 // This product includes software developed at Datadog (https://www.datadoghq.com/).
 // Copyright 2016-present Datadog, Inc.
 
+// Package utils generate host metadata payload ready to be sent.
 package utils
 
 import (
@@ -26,6 +27,9 @@ import (
 var (
 	hostCacheKey        = cache.BuildAgentKey("host", "utils", "host")
 	systemStatsCacheKey = cache.BuildAgentKey("host", "utils", "systemStats")
+
+	// for testing
+	otlpIsEnabled = otlp.IsEnabled
 )
 
 type systemStats struct {
@@ -172,7 +176,7 @@ func GetPayload(ctx context.Context, conf config.ConfigReader) *Payload {
 		LogsMeta:      getLogsMeta(conf),
 		InstallMethod: getInstallMethod(conf),
 		ProxyMeta:     getProxyMeta(conf),
-		OtlpMeta:      &OtlpMeta{Enabled: otlp.IsEnabled(conf)},
+		OtlpMeta:      &OtlpMeta{Enabled: otlpIsEnabled(conf)},
 	}
 
 	// Cache the metadata for use in other payloads
