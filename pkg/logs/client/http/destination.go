@@ -32,7 +32,6 @@ import (
 
 // ContentType options,
 const (
-	TextContentType     = "text/plain"
 	JSONContentType     = "application/json"
 	ProtobufContentType = "application/x-protobuf"
 )
@@ -252,9 +251,6 @@ func (d *Destination) unconditionalSend(payload *message.Payload) (err error) {
 
 	ctx := d.destinationsContext.Context()
 
-	if err != nil {
-		return err
-	}
 	metrics.BytesSent.Add(int64(payload.UnencodedSize))
 	metrics.TlmBytesSent.Add(float64(payload.UnencodedSize))
 	metrics.EncodedBytesSent.Add(int64(len(payload.Encoded)))
