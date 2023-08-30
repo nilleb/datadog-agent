@@ -32,8 +32,8 @@ var (
 	warnings *config.Messages
 	errors   *config.Messages
 
-	// CurrentTransport is the current transport used by logs-agent, i.e TCP or HTTP
-	CurrentTransport Transport
+	// currentTransport is the current transport used by logs-agent, i.e TCP or HTTP
+	currentTransport Transport
 )
 
 // Source provides some information about a logs source.
@@ -69,6 +69,14 @@ type Status struct {
 	Errors           []string          `json:"errors"`
 	Warnings         []string          `json:"warnings"`
 	UseHTTP          bool              `json:"use_http"`
+}
+
+func SetCurrentTransport(t Transport) {
+	currentTransport = t
+}
+
+func GetCurrentTransport() Transport {
+	return currentTransport
 }
 
 // Init instantiates the builder that builds the status on the fly.

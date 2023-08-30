@@ -3,6 +3,8 @@
 // This product includes software developed at Datadog (https://www.datadoghq.com/).
 // Copyright 2016-present Datadog, Inc.
 
+//go:build !windows
+
 package utils
 
 import (
@@ -10,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/host"
 
 	"github.com/DataDog/datadog-agent/pkg/collector/python"
 	"github.com/DataDog/datadog-agent/pkg/metadata/inventories"
@@ -20,6 +23,22 @@ import (
 const osName = runtime.GOOS
 
 type osVersion [3]interface{}
+
+// GetInformation returns an InfoStat object, filled in with various operating system metadata. This returns an empty
+// host.InfoStat if gopsutil fails.
+func GetInformation() *host.InfoStat {
+	info, _ := cache.Get[*host.InfoStat](
+		hostInfoCacheKey,
+		func() (*host.InfoStat, error) {
+			info, err := host.Info()
+			if err != nil {
+				log.Errorf("failed to retrieve host info: %s", err)
+				return &host.InfoStat{}, err
+			}
+			return info, err
+		})
+	return info
+}
 
 func getSystemStats() *systemStats {
 	res, _ := cache.Get[*systemStats](

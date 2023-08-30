@@ -3,6 +3,10 @@
 // This product includes software developed at Datadog (https://www.datadoghq.com/).
 // Copyright 2016-present Datadog, Inc.
 
+// Portions of this code are taken from the gopsutil project
+// https://github.com/shirou/gopsutil .  This code is licensed under the New BSD License
+// copyright WAKAYAMA Shirou, and the gopsutil contributors
+
 // Package utils generate host metadata payload ready to be sent.
 package utils
 
@@ -27,9 +31,11 @@ import (
 var (
 	hostCacheKey        = cache.BuildAgentKey("host", "utils", "host")
 	systemStatsCacheKey = cache.BuildAgentKey("host", "utils", "systemStats")
+	hostInfoCacheKey    = cache.BuildAgentKey("host", "utils", "hostInfo")
 
 	// for testing
-	otlpIsEnabled = otlp.IsEnabled
+	otlpIsEnabled  = otlp.IsEnabled
+	installinfoGet = installinfo.Get
 )
 
 type systemStats struct {
@@ -112,13 +118,13 @@ func getNetworkMeta(ctx context.Context) *NetworkMeta {
 
 func getLogsMeta(conf config.ConfigReader) *LogsMeta {
 	return &LogsMeta{
-		Transport:            string(status.CurrentTransport),
+		Transport:            string(status.GetCurrentTransport()),
 		AutoMultilineEnabled: conf.GetBool("logs_config.auto_multi_line_detection"),
 	}
 }
 
 func getInstallMethod(conf config.ConfigReader) *InstallMethod {
-	install, err := installinfo.Get(conf)
+	install, err := installinfoGet(conf)
 	if err != nil {
 		return &InstallMethod{
 			ToolVersion:      "undefined",
@@ -133,10 +139,10 @@ func getInstallMethod(conf config.ConfigReader) *InstallMethod {
 	}
 }
 
-// Expose the value of no_proxy_nonexact_match as well as any warnings of proxy behavior change in the metadata payload.
-// The NoProxy maps contain any errors or warnings due to the behavior changing when no_proxy_nonexact_match is enabled.
-// ProxyBehaviorChanged is true in the metadata if there would be any errors or warnings indicating that there would a
-// behavior change if 'no_proxy_nonexact_match' was enabled.
+// getProxyMeta exposes the value of no_proxy_nonexact_match as well as any warnings of proxy behavior change in the
+// metadata payload. The NoProxy maps contain any errors or warnings due to the behavior changing when
+// no_proxy_nonexact_match is enabled. ProxyBehaviorChanged is true in the metadata if there would be any errors or
+// warnings indicating that there would a behavior change if 'no_proxy_nonexact_match' was enabled.
 func getProxyMeta(conf config.ConfigReader) *ProxyMeta {
 	NoProxyNonexactMatchExplicitlySetState := false
 	NoProxyNonexactMatch := false
@@ -187,11 +193,19 @@ func GetPayload(ctx context.Context, conf config.ConfigReader) *Payload {
 // GetFromCache returns the payload from the cache if it exists, otherwise it creates it.
 // The metadata reporting should always grab it fresh. Any other uses, e.g. status, should use this
 func GetFromCache(ctx context.Context, conf config.ConfigReader) *Payload {
-	res, _ := cache.Get[*Payload](
-		hostCacheKey,
-		func() (*Payload, error) {
-			return GetPayload(ctx, conf), nil
-		},
-	)
-	return res
+	data, found := cache.Cache.Get(hostCacheKey)
+	if !found {
+		return GetPayload(ctx, conf)
+	}
+	return data.(*Payload)
+}
+
+// GetPlatformName returns the name of the current platform
+func GetPlatformName() string {
+	return GetInformation().Platform
+}
+
+// GetKernelVersion returns the kernel version
+func GetKernelVersion() string {
+	return GetInformation().KernelVersion
 }

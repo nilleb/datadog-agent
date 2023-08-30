@@ -64,11 +64,13 @@ func CreateAgent() (*Agent, error) {
 		status.AddGlobalError(invalidEndpoints, message)
 		return nil, errors.New(message)
 	}
-	status.CurrentTransport = status.TransportTCP
+
 	if endpoints.UseHTTP {
-		status.CurrentTransport = status.TransportHTTP
+		status.SetCurrentTransport(status.TransportHTTP)
+	} else {
+		status.SetCurrentTransport(status.TransportTCP)
 	}
-	inventories.SetAgentMetadata(inventories.AgentLogsTransport, status.CurrentTransport)
+	inventories.SetAgentMetadata(inventories.AgentLogsTransport, string(status.GetCurrentTransport()))
 
 	// setup the status
 	status.Init(isRunning, endpoints, sources, tracker, metrics.LogsExpvars)
