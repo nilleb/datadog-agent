@@ -1,6 +1,3 @@
-//go:generate go run github.com/mailru/easyjson/easyjson -gen_build_flags=-mod=mod -no_std_marshalers -build_tags linux $GOFILE
-//go:generate go run github.com/DataDog/datadog-agent/pkg/security/probe/doc_generator -output ../../../docs/cloud-workload-security/backend.schema.json
-
 // Unless explicitly stated otherwise all files in this repository are licensed
 // under the Apache License Version 2.0.
 // This product includes software developed at Datadog (https://www.datadoghq.com/).
@@ -12,7 +9,6 @@ package serializers
 
 import (
 	json "encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -94,6 +90,7 @@ func newProcess(ps *ProcessSerializer) model.Process {
 	return p
 }
 
+// UnmarshalEvent unmarshal an model.Event (only exec one for now)
 func UnmarshalEvent(raw []byte) (*model.Event, error) {
 	rawEvent := EventSerializer{}
 	err := json.Unmarshal(raw, &rawEvent)
@@ -101,7 +98,7 @@ func UnmarshalEvent(raw []byte) (*model.Event, error) {
 		return nil, err
 	}
 	if rawEvent.EventContextSerializer.Name != "exec" {
-		return nil, errors.New(fmt.Sprintf("Unmarshalling of event %v is not yet supported", rawEvent.EventContextSerializer.Name))
+		return nil, fmt.Errorf("Unmarshalling of event %v is not yet supported", rawEvent.EventContextSerializer.Name)
 	}
 
 	parent := newProcess(rawEvent.ProcessContextSerializer.Parent)
@@ -144,6 +141,7 @@ func UnmarshalEvent(raw []byte) (*model.Event, error) {
 	return &event, nil
 }
 
+// DecodeEvent will read a JSON file, and unmarshal its content to an model.Event
 func DecodeEvent(file string) (*model.Event, error) {
 	raw, err := os.ReadFile(file)
 	if err != nil {

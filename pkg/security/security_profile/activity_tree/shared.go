@@ -91,7 +91,7 @@ func newExecTestEventWithAncestors(lineage []model.Process) *model.Event {
 	return evt
 }
 
-// Struct used to define an activity-tree insert exec-event test case
+// ActivityTreeInsertExecEventTestCase defines an activity-tree insert exec-event test case
 type ActivityTreeInsertExecEventTestCase struct {
 	Name         string
 	Tree         *ActivityTree
@@ -102,7 +102,7 @@ type ActivityTreeInsertExecEventTestCase struct {
 	wantNode     *ProcessNode
 }
 
-// Activity-tree insert exec-event test cases
+// ActivityTreeInsertExecEventTestCases defines all the activity-tree insert exec-event test cases
 var ActivityTreeInsertExecEventTestCases = []ActivityTreeInsertExecEventTestCase{
 	// exec/1
 	// ---------------
