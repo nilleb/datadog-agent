@@ -95,7 +95,7 @@ type ActivityDump struct {
 
 	// Load config
 	LoadConfig       *model.ActivityDumpLoadConfig `json:"-"`
-	LoadConfigCookie uint32                        `json:"-"`
+	LoadConfigCookie uint64                        `json:"-"`
 }
 
 // NewActivityDumpLoadConfig returns a new instance of ActivityDumpLoadConfig
@@ -287,7 +287,7 @@ func (ad *ActivityDump) computeInMemorySize() int64 {
 }
 
 // SetLoadConfig set the load config of the current activity dump
-func (ad *ActivityDump) SetLoadConfig(cookie uint32, config model.ActivityDumpLoadConfig) {
+func (ad *ActivityDump) SetLoadConfig(cookie uint64, config model.ActivityDumpLoadConfig) {
 	ad.LoadConfig = &config
 	ad.LoadConfigCookie = cookie
 
@@ -307,7 +307,7 @@ func (ad *ActivityDump) SetTimeout(timeout time.Duration) {
 // updateTracedPid traces a pid in kernel space
 func (ad *ActivityDump) updateTracedPid(pid uint32) {
 	// start by looking up any existing entry
-	var cookie uint32
+	var cookie uint64
 	if ad.adm != nil { // it could be nil when running unit tests
 		_ = ad.adm.tracedPIDsMap.Lookup(pid, &cookie)
 		if cookie != ad.LoadConfigCookie {

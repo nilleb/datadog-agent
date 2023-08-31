@@ -94,7 +94,7 @@ type ActivityTreeOwner interface {
 
 type cookieSelector struct {
 	execTime int64
-	cookie   uint32
+	cookie   uint64
 }
 
 func (cs *cookieSelector) isSet() bool {
