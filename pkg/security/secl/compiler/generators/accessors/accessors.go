@@ -26,6 +26,8 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/fatih/structtag"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"golang.org/x/tools/go/packages"
 
 	"github.com/DataDog/datadog-agent/pkg/security/secl/compiler/generators/accessors/common"
@@ -37,14 +39,15 @@ const (
 )
 
 var (
-	modelFile           string
-	typesFile           string
-	pkgname             string
-	output              string
-	verbose             bool
-	docOutput           string
-	fieldHandlersOutput string
-	buildTags           string
+	modelFile               string
+	typesFile               string
+	pkgname                 string
+	output                  string
+	perFieldAccessorsOutput string
+	verbose                 bool
+	docOutput               string
+	fieldHandlersOutput     string
+	buildTags               string
 )
 
 type AstFiles struct {
@@ -563,7 +566,7 @@ func newAstFiles(cfg *packages.Config, files ...string) (*AstFiles, error) {
 		}
 
 		if len(pkgs) == 0 || len(pkgs[0].Syntax) == 0 {
-			return nil, errors.New("failed to get syntax from parse file")
+			return nil, errors.New(fmt.Sprintf("failed to get syntax from parse file %s", file))
 		}
 
 		astFiles.files = append(astFiles.files, pkgs[0].Syntax[0])
@@ -640,6 +643,22 @@ func newField(allFields map[string]*common.StructField, field *common.StructFiel
 	}
 
 	return result
+}
+
+func Split(r rune) bool {
+	return r == '.' || r == '_'
+}
+
+func pascalCaseFieldName(fieldName string) string {
+	chunks := strings.FieldsFunc(fieldName, Split)
+	caser := cases.Title(language.Und, cases.NoLower)
+
+	for idx, chunk := range chunks {
+		newChunk := chunk
+		chunks[idx] = caser.String(newChunk)
+	}
+
+	return strings.Join(chunks, "")
 }
 
 func getFieldHandler(allFields map[string]*common.StructField, field *common.StructField) string {
@@ -746,14 +765,15 @@ func getHandlers(allFields map[string]*common.StructField) map[string]string {
 }
 
 var funcMap = map[string]interface{}{
-	"TrimPrefix":      strings.TrimPrefix,
-	"TrimSuffix":      strings.TrimSuffix,
-	"HasPrefix":       strings.HasPrefix,
-	"NewField":        newField,
-	"GetFieldHandler": getFieldHandler,
-	"FieldADPrint":    fieldADPrint,
-	"GetChecks":       getChecks,
-	"GetHandlers":     getHandlers,
+	"TrimPrefix":          strings.TrimPrefix,
+	"TrimSuffix":          strings.TrimSuffix,
+	"HasPrefix":           strings.HasPrefix,
+	"NewField":            newField,
+	"GetFieldHandler":     getFieldHandler,
+	"FieldADPrint":        fieldADPrint,
+	"GetChecks":           getChecks,
+	"GetHandlers":         getHandlers,
+	"PascalCaseFieldName": pascalCaseFieldName,
 }
 
 //go:embed accessors.tmpl
@@ -761,6 +781,9 @@ var accessorsTemplateCode string
 
 //go:embed field_handlers.tmpl
 var fieldHandlersTemplate string
+
+//go:embed per_field_accessors.tmpl
+var perFieldAccessorsTemplate string
 
 func main() {
 	module, err := parseFile(modelFile, typesFile, pkgname)
@@ -783,6 +806,10 @@ func main() {
 
 	os.Remove(output)
 	if err := GenerateContent(output, module, accessorsTemplateCode); err != nil {
+		panic(err)
+	}
+
+	if err := GenerateContent(perFieldAccessorsOutput, module, perFieldAccessorsTemplate); err != nil {
 		panic(err)
 	}
 }
@@ -849,6 +876,7 @@ func init() {
 	flag.StringVar(&typesFile, "types-file", os.Getenv("TYPESFILE"), "Go type file to use with the model file")
 	flag.StringVar(&pkgname, "package", pkgPrefix+"/"+os.Getenv("GOPACKAGE"), "Go package name")
 	flag.StringVar(&buildTags, "tags", "", "build tags used for parsing")
+	flag.StringVar(&perFieldAccessorsOutput, "per-field-accessors-output", "", "Generated per-field accessors output file")
 	flag.StringVar(&output, "output", "", "Go generated file")
 	flag.Parse()
 }
