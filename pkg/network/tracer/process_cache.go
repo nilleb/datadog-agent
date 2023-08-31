@@ -174,6 +174,7 @@ func (pc *processCache) processEvent(entry *smodel.ProcessContext) *process {
 		return nil
 	}
 
+	// TODO: Use getters
 	return &process{
 		Pid:         entry.Pid,
 		Envs:        envs,
