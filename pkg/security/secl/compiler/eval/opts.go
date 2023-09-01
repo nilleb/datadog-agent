@@ -45,7 +45,7 @@ type VariableStore struct {
 	Variables map[string]VariableValue
 }
 
-// Add add a variable
+// Add adds a variable
 func (s *VariableStore) Add(name string, variable VariableValue) *VariableStore {
 	if s.Variables == nil {
 		s.Variables = make(map[string]VariableValue)

@@ -13,7 +13,7 @@ import "github.com/DataDog/datadog-agent/pkg/security/secl/compiler/eval"
 type EventCollector struct {
 }
 
-// CollectEvent collect event
+// CollectEvent collects event
 func (ec *EventCollector) CollectEvent(rs *RuleSet, event eval.Event, result bool) {
 	// no-op
 }
