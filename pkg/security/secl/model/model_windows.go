@@ -90,4 +90,5 @@ type PIDContext struct {
 	ExecInode uint64 `field:"-"` // used to track exec and event loss
 }
 
+// NetworkDeviceContext defines a network device context
 type NetworkDeviceContext struct{}

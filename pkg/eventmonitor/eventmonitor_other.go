@@ -5,10 +5,13 @@
 
 //go:build !linux && !windows
 
+// eventmonitor package
+
 package eventmonitor
 
 import (
 	"fmt"
+
 	"github.com/DataDog/datadog-agent/pkg/eventmonitor/config"
 	"github.com/DataDog/datadog-agent/pkg/security/secl/model"
 	"github.com/DataDog/datadog-go/v5/statsd"

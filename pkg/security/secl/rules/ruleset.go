@@ -750,6 +750,7 @@ func (rs *RuleSet) generatePartials() error {
 	return nil
 }
 
+// StopEventCollector stops the event collector
 func (rs *RuleSet) StopEventCollector() []CollectedEvent {
 	return rs.eventCollector.Stop()
 }

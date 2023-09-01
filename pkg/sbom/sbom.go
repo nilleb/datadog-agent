@@ -3,6 +3,8 @@
 // This product includes software developed at Datadog (https://www.datadoghq.com/).
 // Copyright 2016-present Datadog, Inc.
 
+// sbom package
+
 package sbom
 
 import (
@@ -14,6 +16,7 @@ import (
 )
 
 const (
+	// ScanFilesystemType defines the type for file-system scan
 	ScanFilesystemType = "filesystem"
 	ScanDaemonType     = "daemon"
 )

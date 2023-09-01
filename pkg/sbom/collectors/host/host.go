@@ -27,6 +27,7 @@ type ScanRequest struct {
 	Path string
 }
 
+// Collector returns the collector name
 func (r *ScanRequest) Collector() string {
 	return collectorName
 }

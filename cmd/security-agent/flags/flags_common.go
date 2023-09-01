@@ -13,15 +13,18 @@ const (
 	PidFile = "pidfile"
 
 	// Status Subcommand
+
 	JSON       = "json"
 	PrettyJSON = "pretty-json"
 	File       = "file" // Also for check subcommand
 
 	// Flare Subcommand
+
 	Email = "email"
 	Send  = "send"
 
 	// Runtime Subcommand
+
 	PoliciesDir        = "policies-dir"
 	EventFile          = "event-file"
 	Debug              = "debug"
@@ -32,9 +35,11 @@ const (
 	RuleID             = "rule-id" // Also for compliance subcommand
 
 	// Runtime Policy Check Subcommand
+
 	EvaluateLoadedPolicies = "loaded-policies"
 
 	// Runtime Activity Dump Subcommand
+
 	Name              = "name"
 	ContainerID       = "containerID"
 	Comm              = "comm"
@@ -51,12 +56,14 @@ const (
 	Target            = "target"
 
 	// Security Profile Subcommand
+
 	SecurityProfileInput = "input"
 	IncludeCache         = "include-cache"
 	ImageName            = "name"
 	ImageTag             = "tag"
 
 	// Compliance Subcommand
+
 	SourceType   = "source-type"
 	SourceName   = "source-name"
 	ResourceID   = "resource-id"
@@ -65,6 +72,7 @@ const (
 	Data         = "data"
 
 	// Check Subcommand
+
 	Framework         = "framework"
 	Verbose           = "verbose"
 	Report            = "report"

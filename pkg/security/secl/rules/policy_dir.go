@@ -201,6 +201,7 @@ func NewPoliciesDirProvider(policiesDir string, watch bool) (*PoliciesDirProvide
 	return p, nil
 }
 
+// Type returns the type of policy dir provider
 func (p *PoliciesDirProvider) Type() string {
 	return PolicyProviderTypeDir
 }

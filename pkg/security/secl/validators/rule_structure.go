@@ -6,7 +6,6 @@
 package validators
 
 import (
-	"fmt"
 	"github.com/DataDog/datadog-agent/pkg/security/secl/compiler/ast"
 	"github.com/DataDog/datadog-agent/pkg/security/secl/compiler/eval"
 	"github.com/DataDog/datadog-agent/pkg/security/secl/model"
@@ -17,7 +16,7 @@ func HasBareWildcardInField(rule *eval.Rule) (bool, error) {
 	parsingContext := ast.NewParsingContext()
 	localModel := &model.Model{}
 	if err := rule.GenEvaluator(localModel, parsingContext); err != nil {
-		return false, fmt.Errorf("%w\n", err)
+		return false, err
 	}
 
 	for _, fieldKey := range rule.GetFields() {

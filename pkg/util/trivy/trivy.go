@@ -40,7 +40,8 @@ import (
 )
 
 const (
-	cleanupTimeout      = 30 * time.Second
+	cleanupTimeout = 30 * time.Second
+	// OSAnalyzers and subsequent vars are exported constants
 	OSAnalyzers         = "os"
 	LanguagesAnalyzers  = "languages"
 	SecretAnalyzers     = "secret"
@@ -216,6 +217,7 @@ func (c *Collector) ScanDockerImage(ctx context.Context, imgMeta *workloadmeta.C
 	return c.scanImage(ctx, fanalImage, imgMeta, scanOptions)
 }
 
+// ScanContainerdImage scans containerd image
 func (c *Collector) ScanContainerdImage(ctx context.Context, imgMeta *workloadmeta.ContainerImageMetadata, img containerd.Image, client cutil.ContainerdItf, scanOptions sbom.ScanOptions) (sbom.Report, error) {
 	fanalImage, cleanup, err := convertContainerdImage(ctx, client.RawClient(), imgMeta, img)
 	if cleanup != nil {

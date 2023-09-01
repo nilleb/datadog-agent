@@ -35,10 +35,12 @@ func (r *ScanRequest) Collector() string {
 	return collectorName
 }
 
+// Type returns the type
 func (r *ScanRequest) Type() string {
 	return "daemon"
 }
 
+// ID returns the ID
 func (r *ScanRequest) ID() string {
 	return r.ImageMeta.ID
 }
@@ -47,10 +49,12 @@ type Collector struct {
 	trivyCollector *trivy.Collector
 }
 
+// CleanCache clean the cache
 func (c *Collector) CleanCache() error {
 	return c.trivyCollector.GetCacheCleaner().Clean()
 }
 
+// Init initialize the collector
 func (c *Collector) Init(cfg config.Config) error {
 	trivyCollector, err := trivy.GetGlobalCollector(cfg)
 	if err != nil {

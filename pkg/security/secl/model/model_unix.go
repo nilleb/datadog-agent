@@ -549,6 +549,7 @@ type SELinuxEvent struct {
 }
 
 const (
+	// ProcessCacheEntryFromUnknown and subsequent defines the possible source for process cache entries
 	ProcessCacheEntryFromUnknown = iota
 	ProcessCacheEntryFromEvent
 	ProcessCacheEntryFromKernelMap

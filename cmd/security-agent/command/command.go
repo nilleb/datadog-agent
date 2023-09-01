@@ -22,6 +22,7 @@ type GlobalParams struct {
 
 type SubcommandFactory func(globalParams *GlobalParams) []*cobra.Command
 
+// LoggerName defines the logger name
 const LoggerName = "SECURITY"
 
 var defaultSecurityAgentConfigFilePaths = []string{

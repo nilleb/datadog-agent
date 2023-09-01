@@ -3,6 +3,8 @@
 // This product includes software developed at Datadog (https://www.datadoghq.com/).
 // Copyright 2016-present Datadog, Inc.
 
+// ast package
+
 package ast
 
 import (
@@ -171,6 +173,7 @@ type BitOperation struct {
 	Next  *BitOperation `parser:"@@ ]"`
 }
 
+// ArithmeticOperation describes an arithmetic operation
 type ArithmeticOperation struct {
 	Pos lexer.Position
 

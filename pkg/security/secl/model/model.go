@@ -314,36 +314,36 @@ func (e *Event) GetWorkloadID() string {
 }
 
 // Retain the event
-func (ev *Event) Retain() Event {
-	if ev.ProcessCacheEntry != nil {
-		ev.ProcessCacheEntry.Retain()
+func (e *Event) Retain() Event {
+	if e.ProcessCacheEntry != nil {
+		e.ProcessCacheEntry.Retain()
 	}
-	return *ev
+	return *e
 }
 
 // Release the event
-func (ev *Event) Release() {
-	if ev.ProcessCacheEntry != nil {
-		ev.ProcessCacheEntry.Release()
+func (e *Event) Release() {
+	if e.ProcessCacheEntry != nil {
+		e.ProcessCacheEntry.Release()
 	}
 }
 
 // ResolveProcessCacheEntry uses the field handler
-func (ev *Event) ResolveProcessCacheEntry() (*ProcessCacheEntry, bool) {
-	return ev.FieldHandlers.ResolveProcessCacheEntry(ev)
+func (e *Event) ResolveProcessCacheEntry() (*ProcessCacheEntry, bool) {
+	return e.FieldHandlers.ResolveProcessCacheEntry(e)
 }
 
 // ResolveEventTime uses the field handler
-func (ev *Event) ResolveEventTime() time.Time {
-	return ev.FieldHandlers.ResolveEventTime(ev)
+func (e *Event) ResolveEventTime() time.Time {
+	return e.FieldHandlers.ResolveEventTime(e)
 }
 
 // GetProcessService uses the field handler
-func (ev *Event) GetProcessService() string {
-	return ev.FieldHandlers.GetProcessService(ev)
+func (e *Event) GetProcessService() string {
+	return e.FieldHandlers.GetProcessService(e)
 }
 
-// MatchedRules contains the identification of one rule that has match
+// MatchedRule contains the identification of one rule that has match
 type MatchedRule struct {
 	RuleID        string
 	RuleVersion   string

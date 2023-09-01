@@ -9,9 +9,11 @@ package rules
 
 import "github.com/DataDog/datadog-agent/pkg/security/secl/compiler/eval"
 
+// EventCollector defines an event collector
 type EventCollector struct {
 }
 
+// CollectEvent collect event
 func (ec *EventCollector) CollectEvent(rs *RuleSet, event eval.Event, result bool) {
 	// no-op
 }

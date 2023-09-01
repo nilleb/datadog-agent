@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
+// EvaluationSet defines an evalation set
 type EvaluationSet struct {
 	RuleSets map[eval.RuleSetTagValue]*RuleSet
 }
@@ -59,6 +60,7 @@ type ruleIndexEntry struct {
 	ruleID eval.RuleID
 }
 
+// LoadPolicies load policies
 func (es *EvaluationSet) LoadPolicies(loader *PolicyLoader, opts PolicyLoaderOpts) *multierror.Error {
 	var (
 		errs       *multierror.Error
