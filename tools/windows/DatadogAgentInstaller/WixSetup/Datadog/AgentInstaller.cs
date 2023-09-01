@@ -216,8 +216,32 @@ namespace WixSetup.Datadog
                     .FindAll("RemoveFolder")
                     .Where(x => x.HasAttribute("Id",
                         value => value.StartsWith("APPLICATIONDATADIRECTORY") ||
-                                 value.StartsWith("EXAMPLECONFSLOCATION")))
+                                 value.StartsWith("EXAMPLECONFSLOCATION") ||
+                                 // TODO: Wix# adds this automatically
+                                 value.StartsWith("TARGETDIR") ||
+                                 value.Equals("ProgramFiles64Folder")))
                     .Remove();
+                // TODO:
+                //   There is a bug somewhere in the tool chain that causes these directories
+                //   to have their SE_DACL_AUTO_INHERITED flag removed on rollback.
+                //   Wix# is auto-adding components for the following directories for some reason, and removing
+                //   the components fixes the issue. However, the issue is still present for PROJECTLOCATION
+                //   even though there is no PROJECTLOCATION component.
+                document
+                    .FindAll("Component")
+                    .Where(x => x.HasAttribute("Id",
+                        value => value.Equals("TARGETDIR") ||
+                                 value.Equals("ProgramFiles64Folder") ||
+                                 value.Equals("Datadog")))
+                    .Remove();
+                document
+                    .FindAll("ComponentRef")
+                    .Where(x => x.HasAttribute("Id",
+                        value => value.Equals("TARGETDIR") ||
+                                 value.Equals("ProgramFiles64Folder") ||
+                                 value.Equals("Datadog")))
+                    .Remove();
+                // END TODO
                 document
                     .FindAll("Component")
                     .Where(x => x.Parent.HasAttribute("Id",
