@@ -44,16 +44,15 @@ type imagePackages map[string]*Package
 type workloadEntry struct {
 	containerID string
 	cgroup      *cgroupModel.CacheEntry
-}
-
-func (c *workloadEntry) key() string {
-	return c.cgroup.WorkloadSelector.Image + ":" + c.cgroup.WorkloadSelector.Tag
+	key         string
 }
 
 func newWorkloadEntry(containerID string, cgroup *cgroupModel.CacheEntry) *workloadEntry {
+	key := cgroup.WorkloadSelector.Image + ":" + cgroup.WorkloadSelector.Tag
 	return &workloadEntry{
 		containerID: containerID,
 		cgroup:      cgroup,
+		key:         key,
 	}
 }
 
@@ -193,16 +192,14 @@ func (r *Resolver) generateSBOM(root string) (*trivy.TrivyReport, error) {
 	return trivyReport, nil
 }
 
-// analyzeWorkload generates the SBOM of the provided sbom and send it to the security agent
 func (r *Resolver) analyzeWorkload(containerID string) error {
 	wl := r.GetWorkload(containerID)
 	if wl == nil {
 		return nil
 	}
 
-	key := wl.key()
 	r.imagesCacheLock.RLock()
-	if r.imagesCache.Contains(key) {
+	if r.imagesCache.Contains(wl.key) {
 		r.imagesCacheLock.RUnlock()
 		return nil
 	}
@@ -256,7 +253,7 @@ func (r *Resolver) analyzeWorkload(containerID string) error {
 	seclog.Infof("new sbom generated for '%s': %d files added", wl.containerID, len(files))
 
 	r.imagesCacheLock.Lock()
-	r.imagesCache.Add(key, files)
+	r.imagesCache.Add(wl.key, files)
 	r.imagesCacheLock.Unlock()
 	return nil
 }
@@ -268,7 +265,7 @@ func (r *Resolver) ResolvePackage(containerID string, file *model.FileEvent) *Pa
 	if wl == nil {
 		return nil
 	}
-	files, ok := r.imagesCache.Get(wl.key())
+	files, ok := r.imagesCache.Get(wl.key)
 	if !ok {
 		return nil
 	}
@@ -301,7 +298,7 @@ func (r *Resolver) Retain(containerID string, cgroup *cgroupModel.CacheEntry) {
 
 	// check if this workload has been scanned before
 	r.imagesCacheLock.RLock()
-	loaded := r.imagesCache.Contains(wl.key())
+	loaded := r.imagesCache.Contains(wl.key)
 	r.imagesCacheLock.RUnlock()
 	if loaded {
 		r.imagesCacheHit.Inc()
