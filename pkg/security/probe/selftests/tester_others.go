@@ -14,7 +14,9 @@ import (
 )
 
 // SelfTester represents all the state needed to conduct rule injection test at startup
-type SelfTester struct{}
+type SelfTester struct {
+	probe *probe.Probe
+}
 
 // IsExpectedEvent sends an event to the tester
 func (t *SelfTester) IsExpectedEvent(rule *rules.Rule, event eval.Event, p *probe.Probe) bool {
