@@ -326,6 +326,7 @@ type seclField struct {
 	check                  string
 	exposedAtEventRootOnly bool // fields that should only be exposed at the root of an event, i.e. `parent` should not be exposed for an `ancestor` of a process
 	containerStructName    string
+	internalAccess         bool //  a field that is not exposed via SECL, but still has an accessor generated
 }
 
 func parseFieldDef(def string) (seclField, error) {
@@ -368,6 +369,8 @@ func parseFieldDef(def string) (seclField, error) {
 						field.skipADResolution = true
 					case "exposed_at_event_root_only":
 						field.exposedAtEventRootOnly = true
+					case "internal_access":
+						field.internalAccess = true
 					}
 				}
 			}
